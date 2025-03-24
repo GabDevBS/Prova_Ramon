@@ -111,61 +111,75 @@ class Cobra extends Entidade {
             }
         }
     }
-    
-   atualizar() {
-       if (teclasPressionadas.KeyW) {
-           this.y -= 7
-       } else if (teclasPressionadas.KeyS) {
-           this.y += 7
-       } else if (teclasPressionadas.KeyA) {
-           this.x -= 7
-       } else if (teclasPressionadas.KeyD) {
-           this.x += 7
-       }
-   }
-   verificarColisao(comida){
-       if(
-           this.x < comida.x + comida.largura &&
-           this.x + this.largura > comida.x &&
-           this.y < comida.y + comida.altura &&
-           this.y + this.altura > comida.y
-       ){ 
-           this.#houveColisao(comida)
-       }
-   }
-   #houveColisao(comida){
-       comida.x = Math.random()*canvas.width-10
-       comida.y = Math.random()*canvas.height-10
-   }
-        desenhar() {
+    verificarColisao(comida) {
+        const cabeca = this.segmentos[0];
+        if (
+            cabeca.x < comida.x + comida.largura &&
+            cabeca.x + this.tamanhoSegmento > comida.x &&
+            cabeca.y < comida.y + comida.altura &&
+            cabeca.y + this.tamanhoSegmento > comida.y
+        ) { 
+            this.#houveColisao(comida);
+        }
+    }
+    #houveColisao(comida) {
+        comida.x = Math.random() * (canvas.width - comida.largura);
+        comida.y = Math.random() * (canvas.height - comida.altura);
+        pontuacao++;
+        this.comeu = true;
+    }
+    desenhar() {
         this.segmentos.forEach((segmento, index) => {
             const verde = index === 0 ? 197 : Math.max(50, 197 - (index * 5));
             ctx.fillStyle = `rgb(12, ${verde}, 37)`;
             ctx.fillRect(segmento.x, segmento.y, this.tamanhoSegmento, this.tamanhoSegmento);
         });
     }
-}
-class Comida extends Entidade {
-   constructor() {
-       super(Math.random()*canvas.width-10,Math.random()*canvas.height-10, 20, 20)
-   }
-   desenhar() {
-    ctx.fillStyle = 'red';
-    ctx.fillRect(this.x, this.y, this.largura, this.altura);
-   }
-}
-
-
-const cobra = new Cobra(100, 200, 20, 20)
-const comida = new Comida()
-
-
-function loop() {
-   ctx.clearRect(0, 0, canvas.width, canvas.height)
-   cobra.desenhar()
-   cobra.atualizar()
-   comida.desenhar()
-   cobra.verificarColisao(comida)
-   requestAnimationFrame(loop)
-}
-loop()
+ }
+ 
+ class Comida extends Entidade {
+    constructor() {
+        super(Math.random() * (canvas.width - 20),Math.random() * (canvas.height - 20),20,20
+        );
+    }
+    
+    desenhar() {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x, this.y, this.largura, this.altura);
+    }
+ }
+ const cobra = new Cobra(100, 200, 20, 20);
+ const comida = new Comida();
+ 
+ function desenharTelaGameOver() {
+    ctx.fillStyle = 'rgba(133, 133, 133, 0.75)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.font = '50px Times New Roman';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - 50);
+    ctx.font = '28px Times New Roman';
+    ctx.fillText(`Pontuação: ${pontuacao}`, canvas.width / 2, canvas.height / 2);
+    ctx.font = '20px Times New Roman';
+    ctx.fillText('Clique para jogar novamente', canvas.width / 2, canvas.height / 2 + 40);
+ }
+ function desenharPontuacao() {
+    ctx.fillStyle = 'grey';
+    ctx.font = '22px Times New Roman';
+    ctx.textAlign = 'left';
+    ctx.fillText(`Pontuação: ${pontuacao}`, 10, 30);
+ }
+ function loop() {
+    if (gameOver) {
+        desenharTelaGameOver();
+        return;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    cobra.atualizar();
+    cobra.desenhar();
+    comida.desenhar();
+    cobra.verificarColisao(comida);
+    desenharPontuacao();
+    requestAnimationFrame(loop);
+ }
+ loop();
