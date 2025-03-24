@@ -32,6 +32,12 @@ function reiniciarJogo() {
 let gameOver = false;
 let pontuacao = 0;
 
+canvas.addEventListener('click', () => {
+    if (gameOver) {
+        reiniciarJogo();
+    }
+ });
+
 class Entidade {
    constructor(x, y, largura, altura) {
        this.x = x
@@ -49,7 +55,63 @@ class Entidade {
 class Cobra extends Entidade {
    constructor(x, y, largura, altura) {
        super(x, y, largura, altura)
+       this.segmentos = [{x: x, y: y}];
+       this.tamanhoSegmento = largura;
+       this.velocidade = 7;
+       this.direcao = 'direita';
+       this.novaDirecao = 'direita';
    }
+   atualizar() {
+       if (teclasPressionadas.KeyW && this.direcao !== 'baixo') this.novaDirecao = 'cima';
+       else if (teclasPressionadas.KeyS && this.direcao !== 'cima') this.novaDirecao = 'baixo';
+       else if (teclasPressionadas.KeyA && this.direcao !== 'direita') this.novaDirecao = 'esquerda';
+       else if (teclasPressionadas.KeyD && this.direcao !== 'esquerda') this.novaDirecao = 'direita';
+       
+       const cabeca = {...this.segmentos[0]};
+       
+       this.direcao = this.novaDirecao;
+       
+       switch(this.direcao) {
+           case 'cima':
+               cabeca.y -= this.velocidade;
+               break;
+           case 'baixo':
+               cabeca.y += this.velocidade;
+               break;
+           case 'esquerda':
+               cabeca.x -= this.velocidade;
+               break;
+           case 'direita':
+               cabeca.x += this.velocidade;
+               break;
+       }
+       this.segmentos.unshift(cabeca);
+       if (!this.comeu) {
+           this.segmentos.pop();
+       } else {
+           this.comeu = false;
+       }
+       this.verificarBordas();
+       this.verificarAutoColisao();
+   }
+   verificarBordas() {
+    const cabeca = this.segmentos[0];
+    if (cabeca.x < 0 || cabeca.x + this.tamanhoSegmento > canvas.width || 
+        cabeca.y < 0 || cabeca.y + this.tamanhoSegmento > canvas.height) {
+        gameOver = true;
+        }
+    }
+    verificarAutoColisao() {
+        const cabeca = this.segmentos[0];
+        for (let i = 1; i < this.segmentos.length; i++) {
+            const segmento = this.segmentos[i];
+            if (cabeca.x === segmento.x && cabeca.y === segmento.y) {
+                gameOver = true;
+                break;
+            }
+        }
+    }
+    
    atualizar() {
        if (teclasPressionadas.KeyW) {
            this.y -= 7
