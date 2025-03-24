@@ -40,18 +40,18 @@ class Cobra extends Entidade {
         super(x, y, largura, altura)
     }
     desenhar (){
-    ctx.fillStyle ='darkgreen'
+    ctx.fillStyle ='green'
     ctx.fillRect(this.x, this.y, this.largura, this.altura)
 }
     atualizar() {
         if (teclasPressionadas.KeyW) {
-            this.y -= 6
+            this.y -= 8
         } else if (teclasPressionadas.KeyS) {
-            this.y += 6
+            this.y += 8
         } else if (teclasPressionadas.KeyA) {
-            this.x -= 6
+            this.x -= 8
         } else if (teclasPressionadas.KeyD) {
-            this.x += 6
+            this.x += 8
         }
     }
 
@@ -93,7 +93,7 @@ class Comida extends Entidade {
         super(Math.random()*canvas.width-10, Math.random()*canvas.height-10, 20, 20)
     }
     desenhar (){
-        ctx.fillStyle ='darkred'
+        ctx.fillStyle ='red'
         ctx.fillRect(this.x, this.y, this.largura, this.altura)
     }
 }
